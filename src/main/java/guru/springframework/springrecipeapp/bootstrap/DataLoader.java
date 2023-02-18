@@ -4,6 +4,7 @@ import guru.springframework.springrecipeapp.models.*;
 import guru.springframework.springrecipeapp.repositories.CategoryRepository;
 import guru.springframework.springrecipeapp.repositories.RecipeRepository;
 import guru.springframework.springrecipeapp.repositories.UnitOfMeasureRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class DataLoader implements ApplicationListener<ContextRefreshedEvent> {
 
     private final RecipeRepository recipeRepository;
@@ -29,6 +31,7 @@ public class DataLoader implements ApplicationListener<ContextRefreshedEvent> {
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
+        log.debug("I'm in Bootstrap");
         recipeRepository.saveAll(getRecipes());
     }
 
