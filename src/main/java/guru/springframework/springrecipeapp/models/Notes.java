@@ -3,10 +3,8 @@ package guru.springframework.springrecipeapp.models;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+@Data
+@EqualsAndHashCode(exclude = "recipe")
 @Entity
 public class Notes {
 

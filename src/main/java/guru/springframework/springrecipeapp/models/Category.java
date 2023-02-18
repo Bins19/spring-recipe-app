@@ -7,10 +7,8 @@ import org.hibernate.Hibernate;
 import java.util.Objects;
 import java.util.Set;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+@Data
+@EqualsAndHashCode(exclude = "recipes")
 @Entity
 public class Category {
 
@@ -22,16 +20,4 @@ public class Category {
     @ToString.Exclude
     private Set<Recipe> recipes;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Category category = (Category) o;
-        return id != null && Objects.equals(id, category.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }
