@@ -6,20 +6,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 public class RecipeService {
 
-    private final RecipeRepository recipeRepository;
+    private final RecipeRepository repository;
 
-    public RecipeService(RecipeRepository recipeRepository) {
-        this.recipeRepository = recipeRepository;
+    public RecipeService(RecipeRepository repository) {
+        this.repository = repository;
     }
 
     public List<Recipe> getAll() {
         log.debug("I'm in the service");
-        return (List<Recipe>) recipeRepository.findAll();
+        return (List<Recipe>) repository.findAll();
+    }
+
+    public Optional<Recipe> getById(Long id) {
+        return Optional.of(repository.findById(id)).orElse(null);
     }
 
 }

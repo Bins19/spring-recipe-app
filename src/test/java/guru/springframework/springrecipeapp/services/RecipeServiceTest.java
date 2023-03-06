@@ -9,6 +9,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -35,5 +36,17 @@ class RecipeServiceTest {
 
         assertEquals(recipeSet.size(), 1);
         verify(repository, times(1)).findAll();
+    }
+
+    @Test
+    void getById() {
+        Recipe recipe = new Recipe();
+        recipe.setId(1L);
+        when(repository.findById(1L)).thenReturn(Optional.of(recipe));
+
+        Optional<Recipe> recipeOptional = service.getById(1L);
+
+        assertEquals(1L, recipeOptional.get().getId());
+        verify(repository, times(1)).findById(1L);
     }
 }
