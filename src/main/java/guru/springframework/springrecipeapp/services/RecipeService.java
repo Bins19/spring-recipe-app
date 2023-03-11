@@ -32,7 +32,18 @@ public class RecipeService {
     }
 
     public Optional<Recipe> getById(Long id) {
-        return Optional.of(repository.findById(id)).orElse(null);
+        Optional<Recipe> optional = repository.findById(id);
+
+        if(optional.isEmpty()) {
+            throw new RuntimeException("Recipe not found");
+        }
+
+        return optional;
+    }
+
+    @Transactional
+    public Optional<RecipeCommand> getCommandById(Long id) {
+        return Optional.ofNullable(recipeToRecipeCommand.convert(repository.findById(id).orElse(null)));
     }
 
     @Transactional
