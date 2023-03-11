@@ -54,4 +54,8 @@ public class RecipeService {
         return recipeToRecipeCommand.convert(savedRecipe);
     }
 
+    public void deleteById(Long id) {
+        repository.deleteById(id);
+    }
+
 }

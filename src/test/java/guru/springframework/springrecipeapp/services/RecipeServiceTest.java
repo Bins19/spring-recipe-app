@@ -55,4 +55,13 @@ class RecipeServiceTest {
         assertEquals(1L, recipeOptional.get().getId());
         verify(repository, times(1)).findById(1L);
     }
+
+    @Test
+    void deleteById() {
+        Long id = 1L;
+        service.deleteById(id);
+
+        verify(repository, times(1)).deleteById(id);
+    }
+
 }
