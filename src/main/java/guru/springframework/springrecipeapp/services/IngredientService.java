@@ -1,9 +1,12 @@
 package guru.springframework.springrecipeapp.services;
 
 import guru.springframework.springrecipeapp.commands.IngredientCommand;
+import guru.springframework.springrecipeapp.converters.IngredientCommandToIngredient;
 import guru.springframework.springrecipeapp.converters.IngredientToIngredientCommand;
+import guru.springframework.springrecipeapp.models.Ingredient;
 import guru.springframework.springrecipeapp.models.Recipe;
 import guru.springframework.springrecipeapp.repositories.RecipeRepository;
+import guru.springframework.springrecipeapp.repositories.UnitOfMeasureRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,11 +16,15 @@ import java.util.Optional;
 public class IngredientService {
 
     private final RecipeRepository recipeRepository;
-    private final IngredientToIngredientCommand converter;
+    private final UnitOfMeasureRepository uomRepository;
+    private final IngredientToIngredientCommand ingredientToIngredientCommand;
+    private final IngredientCommandToIngredient ingredientCommandToIngredient;
 
-    public IngredientService(RecipeRepository recipeRepository, IngredientToIngredientCommand converter) {
+    public IngredientService(RecipeRepository recipeRepository, UnitOfMeasureRepository uomRepository, IngredientToIngredientCommand converter, IngredientCommandToIngredient ingredientCommandToIngredient) {
         this.recipeRepository = recipeRepository;
-        this.converter = converter;
+        this.uomRepository = uomRepository;
+        this.ingredientToIngredientCommand = converter;
+        this.ingredientCommandToIngredient = ingredientCommandToIngredient;
     }
 
     @Transactional
@@ -30,13 +37,40 @@ public class IngredientService {
         Optional<IngredientCommand> ingredientCommandOptional = optionalRecipe.get().getIngredients().stream()
                 .filter(ingredient -> ingredient.getId().equals(id))
                 .findFirst()
-                .map(converter::convert);
+                .map(ingredientToIngredientCommand::convert);
 
         if(ingredientCommandOptional.isEmpty()) {
             throw new RuntimeException("Ingredient ID " + id + " not found");
         }
 
         return ingredientCommandOptional;
+    }
+
+    @Transactional
+    public IngredientCommand saveCommand(IngredientCommand ingredientCommand) {
+        Optional<Recipe> optionalRecipe = recipeRepository.findById(ingredientCommand.getRecipeId());
+        if(optionalRecipe.isEmpty()) {
+            throw new RuntimeException("Recipe ID " + ingredientCommand.getRecipeId() + " not found");
+        }
+        Recipe recipe = optionalRecipe.get();
+        Optional<Ingredient> optionalIngredient = recipe.getIngredients().stream()
+                .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
+                .findFirst();
+        if(optionalIngredient.isEmpty()) {
+            recipe.addingIngredient(ingredientCommandToIngredient.convert(ingredientCommand));
+        } else {
+            Ingredient ingredient = optionalIngredient.get();
+            ingredient.setDescription(ingredientCommand.getDescription());
+            ingredient.setAmount(ingredientCommand.getAmount());
+            ingredient.setUnitOfMeasure(uomRepository
+                    .findById(ingredientCommand.getUnitOfMeasure().getId())
+                    .orElseThrow(() -> new RuntimeException("UOM not found")));
+        }
+        Recipe savedRecipe = recipeRepository.save(recipe);
+        return ingredientToIngredientCommand.convert(savedRecipe.getIngredients().stream()
+                .filter(ingredients -> ingredients.getId().equals(ingredientCommand.getId()))
+                .findFirst()
+                .get());
     }
 
 }
