@@ -52,9 +52,9 @@ public class IngredientServiceTest {
         ingredient2.setId(2L);
         Ingredient ingredient3 = new Ingredient();
         ingredient3.setId(3L);
-        recipe.addingIngredient(ingredient1);
-        recipe.addingIngredient(ingredient2);
-        recipe.addingIngredient(ingredient3);
+        recipe.addIngredient(ingredient1);
+        recipe.addIngredient(ingredient2);
+        recipe.addIngredient(ingredient3);
 
         when(recipeRepository.findById(anyLong())).thenReturn(Optional.of(recipe));
 
@@ -74,7 +74,7 @@ public class IngredientServiceTest {
         Optional<Recipe> optionalRecipe = Optional.of(new Recipe());
 
         Recipe savedRecipe = new Recipe();
-        savedRecipe.addingIngredient(new Ingredient());
+        savedRecipe.addIngredient(new Ingredient());
         savedRecipe.getIngredients().iterator().next().setId(1L);
 
         when(recipeRepository.findById(anyLong())).thenReturn(optionalRecipe);

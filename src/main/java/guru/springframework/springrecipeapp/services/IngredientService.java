@@ -57,7 +57,7 @@ public class IngredientService {
                 .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
                 .findFirst();
         if(optionalIngredient.isEmpty()) {
-            recipe.addingIngredient(ingredientCommandToIngredient.convert(ingredientCommand));
+            recipe.addIngredient(ingredientCommandToIngredient.convert(ingredientCommand));
         } else {
             Ingredient ingredient = optionalIngredient.get();
             ingredient.setDescription(ingredientCommand.getDescription());
@@ -67,10 +67,18 @@ public class IngredientService {
                     .orElseThrow(() -> new RuntimeException("UOM not found")));
         }
         Recipe savedRecipe = recipeRepository.save(recipe);
-        return ingredientToIngredientCommand.convert(savedRecipe.getIngredients().stream()
-                .filter(ingredients -> ingredients.getId().equals(ingredientCommand.getId()))
-                .findFirst()
-                .get());
+
+        Optional<Ingredient> savedIngredient = savedRecipe.getIngredients().stream()
+                .filter(ingredient -> ingredient.getId().equals(ingredientCommand.getId()))
+                .findFirst();
+        if(savedIngredient.isEmpty()) {
+            savedIngredient = savedRecipe.getIngredients().stream()
+                    .filter(ingredient -> ingredient.getDescription().equals(ingredientCommand.getDescription()))
+                    .filter(ingredient -> ingredient.getAmount().equals(ingredientCommand.getAmount()))
+                    .filter(ingredient -> ingredient.getUnitOfMeasure().getId().equals(ingredientCommand.getUnitOfMeasure().getId()))
+                    .findFirst();
+        }
+        return ingredientToIngredientCommand.convert(savedIngredient.get());
     }
 
 }
