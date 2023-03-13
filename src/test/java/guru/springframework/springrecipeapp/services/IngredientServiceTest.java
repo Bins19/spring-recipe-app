@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -85,6 +86,26 @@ public class IngredientServiceTest {
         assertEquals(1L, savedCommand.getId());
         verify(recipeRepository, times(1)).findById(anyLong());
         verify(recipeRepository, times(1)).save(any(Recipe.class));
+    }
+
+    @Test
+    void delete() {
+        Recipe recipe = new Recipe();
+        recipe.setId(1L);
+        Ingredient ingredient1 = new Ingredient();
+        ingredient1.setId(1L);
+        Ingredient ingredient2 = new Ingredient();
+        ingredient2.setId(2L);
+        recipe.setIngredients(Set.of(ingredient1, ingredient2));
+        IngredientCommand command = new IngredientCommand();
+        command.setId(1L);
+        command.setRecipeId(1L);
+        when(recipeRepository.findById(anyLong())).thenReturn(Optional.of(recipe));
+
+        service.delete(1L, 1L);
+
+        verify(recipeRepository, times(1)).save(any(Recipe.class));
+        assertEquals(1, recipe.getIngredients().size());
     }
 
 }

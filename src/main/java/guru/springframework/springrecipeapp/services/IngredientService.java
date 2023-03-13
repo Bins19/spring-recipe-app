@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class IngredientService {
@@ -79,6 +80,25 @@ public class IngredientService {
                     .findFirst();
         }
         return ingredientToIngredientCommand.convert(savedIngredient.get());
+    }
+
+    public void delete(Long id, Long recipeId) {
+        Optional<Recipe> optionalRecipe = recipeRepository.findById(recipeId);
+        if(optionalRecipe.isEmpty()) {
+            throw new RuntimeException("Recipe ID " + recipeId + " not found");
+        }
+        Recipe recipe = optionalRecipe.get();
+        Optional<Ingredient> optionalIngredient = recipe.getIngredients().stream()
+                .filter(ingredient -> ingredient.getId().equals(id))
+                .findFirst();
+        if(optionalIngredient.isEmpty()) {
+            throw new RuntimeException("Ingredient ID " + id + " not found");
+        }
+        recipe.setIngredients(recipe.getIngredients().stream()
+                .filter(ingredient -> !ingredient.getId().equals(id))
+                .collect(Collectors.toSet()));
+        optionalIngredient.get().setRecipe(null);
+        recipeRepository.save(recipe);
     }
 
 }
