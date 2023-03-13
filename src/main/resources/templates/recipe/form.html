@@ -60,10 +60,11 @@
                             </div>
                             <div class="col-md-3 form-group">
                                 <label>Difficulty:</label>
-                                <select class="form-select">
-                                    <option>Easy</option>
-                                    <option>Medium</option>
-                                    <option>Hard</option>
+                                <select class="form-select" th:field="*{difficulty}">
+                                    <option th:each="difficulty: ${T(guru.springframework.springrecipeapp.models.Difficulty).values()}"
+                                            th:value="${difficulty.name()}"
+                                            th:text="${difficulty.name()}"
+                                    >Easy</option>
                                 </select>
                             </div>
                         </div>
